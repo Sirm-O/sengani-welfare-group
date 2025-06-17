@@ -5,74 +5,82 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Shield, TrendingUp, Heart, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "@/components/Dashboard";
 
 const Index = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [userRole, setUserRole] = useState<'admin' | 'user'>('user');
+  const [userName, setUserName] = useState('');
+  const [loginData, setLoginData] = useState({ email: "", password: "", role: "" });
   const [signupData, setSignupData] = useState({ 
     name: "", 
     email: "", 
     password: "", 
-    phone: "" 
+    phone: "",
+    role: ""
   });
   const { toast } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginData.email && loginData.password) {
+    if (loginData.email && loginData.password && loginData.role) {
       setIsLoggedIn(true);
+      setUserRole(loginData.role as 'admin' | 'user');
+      setUserName(loginData.email.split('@')[0]); // Use email prefix as name for demo
       toast({
         title: "Welcome back!",
-        description: "You have successfully logged in to your welfare group account.",
+        description: `You have successfully logged in to Sengani Girls Welfare Group as ${loginData.role}.`,
       });
     }
   };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (signupData.name && signupData.email && signupData.password) {
+    if (signupData.name && signupData.email && signupData.password && signupData.role) {
       setIsLoggedIn(true);
+      setUserRole(signupData.role as 'admin' | 'user');
+      setUserName(signupData.name);
       toast({
         title: "Account created!",
-        description: "Welcome to the welfare group. Your account has been created successfully.",
+        description: `Welcome to Sengani Girls Welfare Group. Your ${signupData.role} account has been created successfully.`,
       });
     }
   };
 
   if (isLoggedIn) {
-    return <Dashboard onLogout={() => setIsLoggedIn(false)} />;
+    return <Dashboard onLogout={() => setIsLoggedIn(false)} userRole={userRole} userName={userName} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16 animate-fade-in">
           <div className="flex items-center justify-center mb-6">
-            <div className="p-3 bg-gradient-to-r from-blue-600 to-green-600 rounded-full">
+            <div className="p-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full">
               <Heart className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-4">
-            Welfare Circle Hub
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+            Sengani Girls Welfare Group
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Empowering communities through smart financial management. 
-            Join, contribute, and grow together with your welfare group.
+            Empowering women through smart financial management. 
+            Join, contribute, and grow together with our sisterhood.
           </p>
           
           {/* Feature Cards */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="p-6 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <Users className="h-12 w-12 text-purple-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Member Management</h3>
               <p className="text-gray-600">Easily add and manage group members with detailed profiles and contribution tracking.</p>
             </div>
             <div className="p-6 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-              <Shield className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <Shield className="h-12 w-12 text-pink-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Secure Payments</h3>
               <p className="text-gray-600">Track all contributions and payments with bank-level security and transparency.</p>
             </div>
@@ -88,7 +96,7 @@ const Index = () => {
         <div className="max-w-md mx-auto">
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Join Your Welfare Group</CardTitle>
+              <CardTitle className="text-2xl">Join Sengani Girls</CardTitle>
               <CardDescription>
                 Access your account or create a new one to get started
               </CardDescription>
@@ -124,7 +132,19 @@ const Index = () => {
                         required
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-role">Access Level</Label>
+                      <Select onValueChange={(value) => setLoginData(prev => ({ ...prev, role: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your access level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">Member</SelectItem>
+                          <SelectItem value="admin">Administrator</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                       Sign In
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -165,6 +185,18 @@ const Index = () => {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="signup-role">Access Level</Label>
+                      <Select onValueChange={(value) => setSignupData(prev => ({ ...prev, role: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your access level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">Member</SelectItem>
+                          <SelectItem value="admin">Administrator</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="signup-password">Password</Label>
                       <Input
                         id="signup-password"
@@ -175,7 +207,7 @@ const Index = () => {
                         required
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
+                    <Button type="submit" className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700">
                       Join Group
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
