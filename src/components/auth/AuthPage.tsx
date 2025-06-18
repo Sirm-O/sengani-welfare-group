@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Users, Shield, TrendingUp, Heart, ArrowRight, Phone } from "lucide-react";
+import { Users, Shield, TrendingUp, Heart, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -20,12 +19,9 @@ const AuthPage = () => {
     phone: "",
     role: ""
   });
-  const [otpData, setOtpData] = useState({ phone: "", otp: "" });
-  const [showOTPVerification, setShowOTPVerification] = useState(false);
-  const [pendingAuth, setPendingAuth] = useState<{ email: string; password: string } | null>(null);
   
   const { toast } = useToast();
-  const { signUp, signIn, sendOTP, verifyOTP } = useAuth();
+  const { signUp, signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,12 +35,9 @@ const AuthPage = () => {
           variant: "destructive"
         });
       } else {
-        // Set pending auth and request OTP
-        setPendingAuth({ email: loginData.email, password: loginData.password });
-        setShowOTPVerification(true);
         toast({
-          title: "Please verify your phone",
-          description: "Enter your phone number to receive an OTP for verification.",
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
         });
       }
     }
@@ -71,131 +64,15 @@ const AuthPage = () => {
         toast({
           title: "Account created successfully!",
           description: signupData.role === 'admin' 
-            ? "Your admin account has been created and is pending approval."
-            : "Welcome to Sengani Girls Welfare Group!",
+            ? "Your admin account has been created and is pending approval. An email has been sent to the system administrator."
+            : "Welcome to Sengani Girls Welfare Group! You can now log in.",
         });
+        
+        // Reset form
+        setSignupData({ name: "", email: "", password: "", phone: "", role: "" });
       }
     }
   };
-
-  const handleSendOTP = async () => {
-    if (!otpData.phone) {
-      toast({
-        title: "Phone number required",
-        description: "Please enter your phone number",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const { error } = await sendOTP(otpData.phone);
-    
-    if (error) {
-      toast({
-        title: "Failed to send OTP",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "OTP sent",
-        description: `Check the console for your OTP code (Demo: ${otpData.phone})`,
-      });
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    if (!otpData.otp || !otpData.phone) {
-      toast({
-        title: "Missing information",
-        description: "Please enter both phone number and OTP",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const { error } = await verifyOTP(otpData.phone, otpData.otp);
-    
-    if (error) {
-      toast({
-        title: "Verification failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Phone verified successfully!",
-        description: "You can now access your account.",
-      });
-      setShowOTPVerification(false);
-      setPendingAuth(null);
-    }
-  };
-
-  if (showOTPVerification) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
-        <Card className="w-full max-w-md shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full">
-                <Phone className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <CardTitle className="text-2xl">Verify Your Phone</CardTitle>
-            <CardDescription>
-              Enter your phone number and the OTP code to complete verification
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                placeholder="+254712345678"
-                value={otpData.phone}
-                onChange={(e) => setOtpData(prev => ({ ...prev, phone: e.target.value }))}
-              />
-            </div>
-            
-            <Button onClick={handleSendOTP} className="w-full" variant="outline">
-              Send OTP
-            </Button>
-            
-            <div className="space-y-2">
-              <Label htmlFor="otp">Enter OTP Code</Label>
-              <InputOTP
-                maxLength={6}
-                value={otpData.otp}
-                onChange={(value) => setOtpData(prev => ({ ...prev, otp: value }))}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            
-            <Button onClick={handleVerifyOTP} className="w-full bg-gradient-to-r from-purple-600 to-pink-600">
-              Verify OTP
-            </Button>
-            
-            <Button 
-              onClick={() => setShowOTPVerification(false)} 
-              variant="ghost" 
-              className="w-full"
-            >
-              Back to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">

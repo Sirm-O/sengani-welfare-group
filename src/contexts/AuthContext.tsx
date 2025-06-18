@@ -19,8 +19,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, phone: string, role: 'user' | 'admin') => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  verifyOTP: (phone: string, otp: string) => Promise<{ error: any }>;
-  sendOTP: (phone: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,6 +91,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
+    // If it's an admin signup, send notification email
+    if (!error && role === 'admin') {
+      try {
+        await supabase.functions.invoke('send-admin-approval-request', {
+          body: {
+            adminEmail: 'jabuyahsam@gmail.com',
+            newAdminDetails: {
+              fullName,
+              email,
+              phone
+            }
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send admin approval email:', emailError);
+      }
+    }
+
     return { error };
   };
 
@@ -109,54 +125,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await supabase.auth.signOut();
   };
 
-  const sendOTP = async (phone: string) => {
-    // Generate 6-digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Store OTP in database (expires in 5 minutes)
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 5);
-
-    const { error } = await supabase
-      .from('otp_verifications')
-      .insert({
-        phone,
-        otp_code: otpCode,
-        expires_at: expiresAt.toISOString()
-      });
-
-    // In a real implementation, you would send the OTP via SMS
-    // For demo purposes, we'll just log it
-    console.log(`OTP for ${phone}: ${otpCode}`);
-    
-    return { error };
-  };
-
-  const verifyOTP = async (phone: string, otp: string) => {
-    const { data, error } = await supabase
-      .from('otp_verifications')
-      .select('*')
-      .eq('phone', phone)
-      .eq('otp_code', otp)
-      .eq('verified', false)
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error || !data) {
-      return { error: { message: 'Invalid or expired OTP' } };
-    }
-
-    // Mark OTP as verified
-    await supabase
-      .from('otp_verifications')
-      .update({ verified: true })
-      .eq('id', data.id);
-
-    return { error: null };
-  };
-
   const value = {
     user,
     session,
@@ -164,9 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     signUp,
     signIn,
-    signOut,
-    verifyOTP,
-    sendOTP
+    signOut
   };
 
   return (
