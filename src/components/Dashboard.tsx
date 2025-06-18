@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,17 +20,19 @@ import MemberManagement from "./MemberManagement";
 import PaymentTracker from "./PaymentTracker";
 import UserProfile from "./UserProfile";
 import UserDashboard from "./UserDashboard";
+import { useAuth } from "@/contexts/AuthContext";
+import { formatCurrencyShort } from "@/utils/currency";
 
 interface DashboardProps {
-  onLogout: () => void;
   userRole: 'admin' | 'user';
   userName: string;
 }
 
-const Dashboard = ({ onLogout, userRole, userName }: DashboardProps) => {
+const Dashboard = ({ userRole, userName }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState(userRole === 'admin' ? "overview" : "my-dashboard");
+  const { signOut } = useAuth();
 
-  // Mock data
+  // Mock data with Kenyan Shillings
   const groupStats = {
     totalMembers: 12,
     totalContributions: 24500,
@@ -44,6 +45,10 @@ const Dashboard = ({ onLogout, userRole, userName }: DashboardProps) => {
     { id: 2, member: "Jane Smith", amount: 150, date: "2024-06-14", type: "withdrawal" },
     { id: 3, member: "Mike Johnson", amount: 200, date: "2024-06-13", type: "contribution" },
   ];
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,7 +75,7 @@ const Dashboard = ({ onLogout, userRole, userName }: DashboardProps) => {
               <span className="text-sm text-gray-600">Welcome, {userName}</span>
               <Button 
                 variant="outline" 
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
@@ -115,7 +120,7 @@ const Dashboard = ({ onLogout, userRole, userName }: DashboardProps) => {
                       <DollarSign className="h-4 w-4 opacity-90" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">${groupStats.totalContributions.toLocaleString()}</div>
+                      <div className="text-2xl font-bold">{formatCurrencyShort(groupStats.totalContributions)}</div>
                       <p className="text-xs opacity-90">Lifetime contributions</p>
                     </CardContent>
                   </Card>
@@ -126,7 +131,7 @@ const Dashboard = ({ onLogout, userRole, userName }: DashboardProps) => {
                       <TrendingUp className="h-4 w-4 opacity-90" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">${groupStats.thisMonthContributions.toLocaleString()}</div>
+                      <div className="text-2xl font-bold">{formatCurrencyShort(groupStats.thisMonthContributions)}</div>
                       <p className="text-xs opacity-90">Monthly contributions</p>
                     </CardContent>
                   </Card>
@@ -174,7 +179,7 @@ const Dashboard = ({ onLogout, userRole, userName }: DashboardProps) => {
                             <p className={`font-semibold ${
                               transaction.type === 'contribution' ? 'text-green-600' : 'text-blue-600'
                             }`}>
-                              {transaction.type === 'contribution' ? '+' : '-'}${transaction.amount}
+                              {transaction.type === 'contribution' ? '+' : '-'}{formatCurrencyShort(transaction.amount)}
                             </p>
                             <Badge variant={transaction.type === 'contribution' ? 'default' : 'secondary'}>
                               {transaction.type}

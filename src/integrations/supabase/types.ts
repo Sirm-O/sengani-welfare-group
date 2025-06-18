@@ -9,13 +9,160 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      members: {
+        Row: {
+          created_at: string
+          current_balance: number | null
+          id: string
+          member_number: string | null
+          monthly_contribution: number | null
+          next_payment_due: string | null
+          profile_id: string | null
+          status: string | null
+          total_contributions: number | null
+          total_withdrawals: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_balance?: number | null
+          id?: string
+          member_number?: string | null
+          monthly_contribution?: number | null
+          next_payment_due?: string | null
+          profile_id?: string | null
+          status?: string | null
+          total_contributions?: number | null
+          total_withdrawals?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_balance?: number | null
+          id?: string
+          member_number?: string | null
+          monthly_contribution?: number | null
+          next_payment_due?: string | null
+          profile_id?: string | null
+          status?: string | null
+          total_contributions?: number | null
+          total_withdrawals?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      otp_verifications: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          otp_code: string
+          phone: string
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          otp_code: string
+          phone: string
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          phone?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          is_approved: boolean
+          phone: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id: string
+          is_approved?: boolean
+          phone: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_approved?: boolean
+          phone?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          member_id: string | null
+          transaction_date: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          member_id?: string | null
+          transaction_date?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          member_id?: string | null
+          transaction_date?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

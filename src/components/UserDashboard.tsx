@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +11,14 @@ import {
   Target,
   PiggyBank
 } from "lucide-react";
+import { formatCurrencyShort } from "@/utils/currency";
 
 interface UserDashboardProps {
   userName: string;
 }
 
 const UserDashboard = ({ userName }: UserDashboardProps) => {
-  // Mock user-specific data
+  // Mock user-specific data with Kenyan Shillings
   const userStats = {
     totalContributions: 2400,
     totalWithdrawals: 500,
@@ -75,7 +75,7 @@ const UserDashboard = ({ userName }: UserDashboardProps) => {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">${userStats.currentBalance.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-600">{formatCurrencyShort(userStats.currentBalance)}</div>
             <p className="text-xs text-gray-600">Available funds</p>
           </CardContent>
         </Card>
@@ -86,7 +86,7 @@ const UserDashboard = ({ userName }: UserDashboardProps) => {
             <TrendingUp className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">${userStats.totalContributions.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrencyShort(userStats.totalContributions)}</div>
             <p className="text-xs text-gray-600">Lifetime contributions</p>
           </CardContent>
         </Card>
@@ -97,8 +97,8 @@ const UserDashboard = ({ userName }: UserDashboardProps) => {
             <PiggyBank className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">${userStats.thisMonthContribution}</div>
-            <p className="text-xs text-gray-600">of ${userStats.monthlyTarget} target</p>
+            <div className="text-2xl font-bold text-purple-600">{formatCurrencyShort(userStats.thisMonthContribution)}</div>
+            <p className="text-xs text-gray-600">of {formatCurrencyShort(userStats.monthlyTarget)} target</p>
           </CardContent>
         </Card>
 
@@ -126,8 +126,8 @@ const UserDashboard = ({ userName }: UserDashboardProps) => {
         <CardContent>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span>Monthly Target: ${userStats.monthlyTarget}</span>
-              <span>Contributed: ${userStats.thisMonthContribution}</span>
+              <span>Monthly Target: {formatCurrencyShort(userStats.monthlyTarget)}</span>
+              <span>Contributed: {formatCurrencyShort(userStats.thisMonthContribution)}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div 
@@ -138,7 +138,7 @@ const UserDashboard = ({ userName }: UserDashboardProps) => {
             <p className="text-sm text-gray-600">
               {userStats.thisMonthContribution >= userStats.monthlyTarget ? 
                 "🎉 Monthly target achieved!" : 
-                `$${userStats.monthlyTarget - userStats.thisMonthContribution} remaining to reach your target`
+                `${formatCurrencyShort(userStats.monthlyTarget - userStats.thisMonthContribution)} remaining to reach your target`
               }
             </p>
           </div>
@@ -179,7 +179,7 @@ const UserDashboard = ({ userName }: UserDashboardProps) => {
                   <p className={`font-semibold ${
                     transaction.type === 'contribution' ? 'text-green-600' : 'text-blue-600'
                   }`}>
-                    {transaction.type === 'contribution' ? '+' : '-'}${transaction.amount}
+                    {transaction.type === 'contribution' ? '+' : '-'}{formatCurrencyShort(transaction.amount)}
                   </p>
                   <Badge variant={transaction.type === 'contribution' ? 'default' : 'secondary'}>
                     {transaction.type}
