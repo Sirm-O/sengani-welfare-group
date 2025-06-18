@@ -54,7 +54,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .eq('id', session.user.id)
             .single();
           
-          setProfile(profileData);
+          // Type assertion to ensure role is properly typed
+          if (profileData) {
+            setProfile({
+              ...profileData,
+              role: profileData.role as 'user' | 'admin'
+            });
+          }
         } else {
           setProfile(null);
         }
