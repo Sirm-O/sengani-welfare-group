@@ -126,60 +126,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, phone: string, role: 'user' | 'admin') => {
+    // Prepare options data, including auto-approval for admins for testing
+    const optionsData: { full_name: string; phone: string; role: 'user' | 'admin'; is_approved?: boolean } = {
+      full_name: fullName,
+      phone,
+      role
+    };
+
+    if (role === 'admin') {
+      optionsData.is_approved = true; // Auto-approve admins for testing
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          full_name: fullName,
-          phone,
-          role
-        }
+        data: optionsData
       }
     });
 
-    // If it's an admin signup, send notification email
+    // If it's an admin signup, the email notification is now disabled for testing.
+    // The improved error handling for function invocation remains but won't be triggered.
     if (!error && role === 'admin') {
-      try {
-        const { error: functionInvokeError } = await supabase.functions.invoke('send-admin-approval-request', {
-          body: {
-            adminEmail: 'jabuyahsam@gmail.com', // Consider making this configurable
-            newAdminDetails: {
-              fullName,
-              email,
-              phone
-            }
-          }
-        });
+      // console.log("Admin signed up. Email notification step is currently disabled for testing.");
+      // try {
+      //   const { error: functionInvokeError } = await supabase.functions.invoke('send-admin-approval-request', {
+      //     body: {
+      //       adminEmail: 'jabuyahsam@gmail.com', // Consider making this configurable
+      //       newAdminDetails: {
+      //         fullName,
+      //         email,
+      //         phone
+      //       }
+      //     }
+      //   });
 
-        if (functionInvokeError) {
-          console.error('Error invoking send-admin-approval-request function:', functionInvokeError);
-          // Return a more specific error to the client.
-          // This helps differentiate from the initial auth.signUp error.
-          return {
-            error: {
-              message: `Admin user ${email} signed up, but failed to send approval email. Please contact support. Function error: ${functionInvokeError.message}`,
-              cause: 'function_invoke_failed',
-              details: functionInvokeError
-            }
-          };
-        }
-      } catch (invocationCatchError) {
-        // This catches errors if the invoke call itself fails spectacularly (e.g., network issue to functions endpoint, though less common)
-        console.error('Critical error during supabase.functions.invoke call:', invocationCatchError);
-        return {
-          error: {
-            message: `Admin user ${email} signed up, but a critical error occurred while trying to send the approval email. Please contact support. Details: ${(invocationCatchError as Error).message}`,
-            cause: 'function_invocation_exception',
-            details: invocationCatchError
-          }
-        };
-      }
+      //   if (functionInvokeError) {
+      //     console.error('Error invoking send-admin-approval-request function:', functionInvokeError);
+      //     return {
+      //       error: {
+      //         message: `Admin user ${email} signed up, but failed to send approval email. Please contact support. Function error: ${functionInvokeError.message}`,
+      //         cause: 'function_invoke_failed',
+      //         details: functionInvokeError
+      //       }
+      //     };
+      //   }
+      // } catch (invocationCatchError) {
+      //   console.error('Critical error during supabase.functions.invoke call:', invocationCatchError);
+      //   return {
+      //     error: {
+      //       message: `Admin user ${email} signed up, but a critical error occurred while trying to send the approval email. Please contact support. Details: ${(invocationCatchError as Error).message}`,
+      //       cause: 'function_invocation_exception',
+      //       details: invocationCatchError
+      //     }
+      //   };
+      // }
     }
 
-    // If there was an initial error from supabase.auth.signUp, or if it's not an admin, return the original error object.
-    // If it was an admin and email sending was successful, error will be null here.
     return { error };
   };
 
