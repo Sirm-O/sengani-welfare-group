@@ -55,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
         }
 
+        console.log("Setting loading to false in onAuthStateChange");
         // Only set loading to false after we've processed the session
         setLoading(false);
       }
@@ -68,7 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (error) {
           console.error('Error getting session:', error);
-          if (mounted) setLoading(false);
+          if (mounted) {
+            console.log("Setting loading to false in initializeAuth error");
+            setLoading(false);
+          }
           return;
         }
 
@@ -82,10 +86,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await fetchUserProfile(session.user.id);
         }
 
+        console.log("Setting loading to false in initializeAuth success");
         setLoading(false);
       } catch (error) {
         console.error('Error initializing auth:', error);
-        if (mounted) setLoading(false);
+        if (mounted) {
+          console.log("Setting loading to false in initializeAuth catch");
+          setLoading(false);
+        }
       }
     };
 
