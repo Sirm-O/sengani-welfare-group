@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"; // Renamed to avoid conflict
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "@/components/Dashboard"; // For protected routes
+import { SupabaseTest } from "./components/SupabaseTest";
 
 const queryClient = new QueryClient();
 
@@ -54,17 +56,9 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/" element={<Index />} />
-      {/* Example of a protected route if you had a separate dashboard page */}
-      {/* <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard userRole={profile?.role || 'user'} userName={profile?.full_name || ''} />
-          </ProtectedRoute>
-        }
-      /> */}
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="/test" element={<SupabaseTest />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
