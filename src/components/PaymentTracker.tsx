@@ -105,7 +105,7 @@ const PaymentTracker = () => {
   };
 
   const filteredAndSortedPayments = useMemo(() => {
-    let items = payments.filter(p =>
+    const items = payments.filter(p =>
       (filters.type === "all" || p.type === filters.type) &&
       (filters.status === "all" || p.status === filters.status) &&
       (p.memberName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
