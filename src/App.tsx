@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "@/components/Dashboard"; // For protected routes
 import { SupabaseTest } from "./components/SupabaseTest";
+import { AuthPage } from "./components/auth/AuthPage";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   }
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   // Handle admin approval pending state specifically for dashboard access
@@ -57,6 +58,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/auth" element={<AuthPage />} />
       <Route path="/" element={<Index />} />
       <Route path="/test" element={<SupabaseTest />} />
       <Route path="*" element={<NotFound />} />
